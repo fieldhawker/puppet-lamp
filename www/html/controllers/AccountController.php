@@ -265,7 +265,7 @@ class AccountController extends Controller
             $errors[] = self::ERR_MSG_NOT_INPUT_MAIL_ADDRESS;
         }
 
-        if ($this->valid->isMailAddress($params["email"])) {
+        if (!$this->valid->isMailAddress($params["email"])) {
             $errors[] = self::ERR_MSG_NOT_MAIL_FORMAT;
         }
 
@@ -310,7 +310,7 @@ class AccountController extends Controller
             $errors[] = self::ERR_MSG_NOT_INPUT_MAIL_ADDRESS;
         }
 
-        if ($this->valid->isMailAddress($params["email"])) {
+        if (!$this->valid->isMailAddress($params["email"])) {
             $errors[] = self::ERR_MSG_NOT_MAIL_FORMAT;
         }
 

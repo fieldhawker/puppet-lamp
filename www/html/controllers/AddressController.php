@@ -130,13 +130,18 @@ class AddressController extends Controller
             return $this->redirect('/');
         }
 
+        $user = $this->session->get('user');
+
         $params["id"]      = $this->request->getPost('id');
         $params["name"]    = $this->request->getPost('name');
         $params["address"] = $this->request->getPost('address');
 
+        $log            = $params;
+        $log["post_by"] = $user["id"];
+
         $this->log->addInfo(
           sprintf(self::LOG_FORMAT, $this->finger, var_export(
-            $params, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
+            $log, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
         );
 
         $errors = $this->validPost($params);
@@ -144,7 +149,6 @@ class AddressController extends Controller
         if (count($errors) === 0) {
             try {
 
-                $user = $this->session->get('user');
                 $this->saveAddress($params, $user);
 
             } catch (Exception $e) {
@@ -161,6 +165,7 @@ class AddressController extends Controller
 
         return $this->render(array(
           'errors'  => $errors,
+          'id'      => $params["id"],
           'name'    => $params["name"],
           'address' => $params["address"],
           '_token'  => $this->generateCsrfToken('status/post'),
@@ -203,12 +208,13 @@ class AddressController extends Controller
 
         try {
 
-            $myself               = $this->session->get('user');
-            $myself["deleted_to"] = $params['id'];
+            $user           = $this->session->get('user');
+            $log            = $params;
+            $log["post_by"] = $user["id"];
 
             $this->log->addInfo(
               sprintf(self::LOG_FORMAT, $this->finger, var_export(
-                $myself, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
+                $log, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
             );
 
             $this->db_manager->get('Address')->delete($params['id']);
