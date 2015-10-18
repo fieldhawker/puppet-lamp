@@ -7,9 +7,9 @@
  */
 class UserRepository extends DbRepository
 {
-    public function insert($email, $password)
+    public function insert($params)
     {
-        $password = $this->hashPassword($password);
+        $password = $this->hashPassword($params["password"]);
         $now = new DateTime();
 
         $sql = "
@@ -18,7 +18,7 @@ class UserRepository extends DbRepository
         ";
 
         $stmt = $this->execute($sql, array(
-          ':email'      => $email,
+          ':email'      => $params["email"],
           ':password'   => $password,
           ':created_at' => $now->format('Y-m-d H:i:s'),
         ));

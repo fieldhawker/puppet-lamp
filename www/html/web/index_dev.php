@@ -4,5 +4,6 @@ require_once '../bootstrap.php';
 require_once '../AddressApplication.php';
 require_once '../vendor/autoload.php';
 
-$app = new AddressApplication(true);
+$debug_mode = true;
+$app = new AddressApplication($debug_mode);
 $app->run();

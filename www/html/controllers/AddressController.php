@@ -1,8 +1,5 @@
 <?php
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-
 /**
  * AddressController.
  *
@@ -12,7 +9,20 @@ class AddressController extends Controller
 {
 //    protected $auth_actions = array('index', 'post');
 
-    const LOG_FORMAT = "%s %s\n %s %s %s (%d)\n=====\n\n";
+    private $valid;
+
+    const LOG_FORMAT                     = "%s %s\n %s %s %s (%d)\n=====\n\n";
+    const ERR_MSG_NOT_INPUT_NAME         = '名前を入力してください';
+    const ERR_MSG_NOT_NAME_MAX_LENGTH    = '名前は20 文字以内で入力してください';
+    const ERR_MSG_NOT_INPUT_ADDRESS      = '住所を入力してください';
+    const ERR_MSG_NOT_ADDRESS_MAX_LENGTH = '住所は250 文字以内で入力してください';
+    const ERR_MSG_NOT_REGISTER_FAILED    = "登録に失敗しました: ";
+    const ERR_MSG_NOT_DELETE_FAILED      = "削除に失敗しました: ";
+    const ERR_MSG_NOT_SETTING_TARGET     = '対象を指定してください';
+    const ERR_MSG_NOT_ID_MAX_LENGTH      = '対象は8 文字以内で入力してください';
+    const LENGTH_ID_MAX                  = 8;
+    const LENGTH_NAME_MAX                = 20;
+    const LENGTH_ADDRESS_MAX             = 250;
 
     /**
      * コンストラクタ
@@ -22,6 +32,7 @@ class AddressController extends Controller
     public function __construct($application)
     {
         parent::__construct($application);
+        $this->valid = new Validate();
     }
 
     /**
@@ -66,6 +77,8 @@ class AddressController extends Controller
 
     /**
      * 住所更新
+     *
+     * @param $params
      *
      * @return string|void
      */
@@ -117,42 +130,27 @@ class AddressController extends Controller
             return $this->redirect('/');
         }
 
-        $post["id"] = $this->request->getPost('id');
-        $post["name"] = $this->request->getPost('name');
-        $post["address"] = $this->request->getPost('address');
+        $params["id"]      = $this->request->getPost('id');
+        $params["name"]    = $this->request->getPost('name');
+        $params["address"] = $this->request->getPost('address');
 
         $this->log->addInfo(
           sprintf(self::LOG_FORMAT, $this->finger, var_export(
-            $post, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
+            $params, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
         );
 
-        $errors = array();
-
-        if (!strlen($post["name"])) {
-            $errors[] = '名前を入力してください';
-        } else {
-            if (mb_strlen($post["name"]) > 20) {
-                $errors[] = '名前は20 文字以内で入力してください';
-            }
-        }
-        if (!strlen($post["address"])) {
-            $errors[] = '住所を入力してください';
-        } else {
-            if (mb_strlen($post["address"]) > 250) {
-                $errors[] = '住所は250 文字以内で入力してください';
-            }
-        }
+        $errors = $this->validPost($params);
 
         if (count($errors) === 0) {
             try {
+
                 $user = $this->session->get('user');
-                if (empty($post["id"]) or !$post["id"]) {
-                    $this->db_manager->get('Address')->insert($user['id'], $post);
-                } else {
-                    $this->db_manager->get('Address')->update($user['id'], $post);
-                }
+                $this->saveAddress($params, $user);
+
             } catch (Exception $e) {
-                die("登録に失敗しました: " . $e->getMessage());
+
+                die(self::ERR_MSG_NOT_REGISTER_FAILED . $e->getMessage());
+
             }
             $this->log->addDebug($this->finger . ' ' . __METHOD__ . ' completed ----');
 
@@ -163,8 +161,8 @@ class AddressController extends Controller
 
         return $this->render(array(
           'errors'  => $errors,
-          'name'    => $post["name"],
-          'address' => $post["address"],
+          'name'    => $params["name"],
+          'address' => $params["address"],
           '_token'  => $this->generateCsrfToken('status/post'),
         ), 'register');
     }
@@ -185,18 +183,11 @@ class AddressController extends Controller
             return $this->redirect('/account/signin');
         }
 
-        $errors = array();
+        $errors = $this->validDelete($params);
 
-        if (!strlen($params["id"])) {
-            $errors[] = '対象を指定してください';
-        } else {
-            if (mb_strlen($params["id"]) > 8) {
-                $errors[] = '対象は8 文字以内で入力してください';
-            }
-        }
         if (count($errors) !== 0) {
             // 一覧に戻る
-            $this->log->addDebug($this->finger . ' ' . __METHOD__ . ' not found ----');
+            $this->log->addDebug($this->finger . ' ' . __METHOD__ . ' validate end ----');
 
             return $this->redirect('/');
         }
@@ -211,23 +202,89 @@ class AddressController extends Controller
         }
 
         try {
-            $this->db_manager->get('Address')->delete($params['id']);
 
-            $myself = $this->session->get('user');
+            $myself               = $this->session->get('user');
             $myself["deleted_to"] = $params['id'];
+
             $this->log->addInfo(
               sprintf(self::LOG_FORMAT, $this->finger, var_export(
                 $myself, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
             );
 
+            $this->db_manager->get('Address')->delete($params['id']);
+
         } catch (Exception $e) {
+
             $this->log->addDebug($this->finger . ' ' . __METHOD__ . '  failed ---');
-            die("削除に失敗しました: " . $e->getMessage());
+            die(self::ERR_MSG_NOT_DELETE_FAILED . $e->getMessage());
+
         }
 
         $this->log->addDebug($this->finger . ' ' . __METHOD__ . ' completed ----');
 
         return $this->redirect('/');
+    }
+
+    /**
+     * @param $params
+     *
+     * @return array
+     */
+    private function validPost($params)
+    {
+        $errors = array();
+
+        if ($this->valid->isEmpty($params["name"])) {
+            $errors[] = self::ERR_MSG_NOT_INPUT_NAME;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["name"], self::LENGTH_NAME_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_NAME_MAX_LENGTH;
+        }
+
+
+        if ($this->valid->isEmpty($params["address"])) {
+            $errors[] = self::ERR_MSG_NOT_INPUT_ADDRESS;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["address"], self::LENGTH_ADDRESS_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_ADDRESS_MAX_LENGTH;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return array
+     */
+    private function validDelete($params)
+    {
+        $errors = array();
+
+        if ($this->valid->isEmpty($params["id"])) {
+            $errors[] = self::ERR_MSG_NOT_SETTING_TARGET;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["id"], self::LENGTH_ID_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_ID_MAX_LENGTH;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param $params
+     * @param $user
+     */
+    private function saveAddress($params, $user)
+    {
+        if (empty($params["id"]) or !$params["id"]) {
+            $this->db_manager->get('Address')->insert($user['id'], $params);
+        } else {
+            $this->db_manager->get('Address')->update($user['id'], $params);
+        }
     }
 
 }
