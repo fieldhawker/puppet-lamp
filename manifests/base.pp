@@ -76,10 +76,13 @@ exec { "locale":
 package { "httpd":        provider => "yum", ensure => "installed"}
 package { "mysql-server": provider => "yum", ensure => "installed"}
 package { "mysql":        provider => "yum", ensure => "installed"}
-package { "php":          provider => "yum", ensure => "installed"}
-package { "php-mbstring": provider => "yum", ensure => "installed"}
-package { "php-mysql":    provider => "yum", ensure => "installed"}
 
+exec { "php56":
+command => "/usr/bin/yum -y install php php-mysqlnd php-gd php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-soap php-tidy --enablerepo=remi,remi-php56"
+}
+#package { "php":        provider => "yum", ensure => "installed"}
+#package { "php-mbstring": provider => "yum", ensure => "installed"}
+#package { "php-mysql":    provider => "yum", ensure => "installed"}
 
 
 # httpd.conf設定
