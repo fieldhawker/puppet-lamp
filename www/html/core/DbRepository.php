@@ -8,6 +8,7 @@
 abstract class DbRepository
 {
     protected $con;
+    protected $valid;
 
     /**
      * コンストラクタ
@@ -17,6 +18,7 @@ abstract class DbRepository
     public function __construct($con)
     {
         $this->setConnection($con);
+        $this->valid = new Validate();
     }
 
     /**

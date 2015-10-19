@@ -57,15 +57,15 @@ class Validate
      * @param int  $max
      *
      * @assert ('a', 0, 2) == true
-     * @assert ('a', 0, 1) == false
-     * @assert ('a', 1, 2) == false
-     * @assert ('a', 2, 3) == false
+     * @assert ('a', 1, 2) == true
+     * @assert ('a', 0, 1) == true
+     * @assert ('a', 1, 1) == false
      *
      * @return bool
      */
     public function isCharaLengthRange($message = null, $min = 0, $max = 0)
     {
-        return ($min < strlen($message) && strlen($message) < $max);
+        return ($min > strlen($message) || strlen($message) > $max);
     }
 
     /**

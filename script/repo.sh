@@ -29,7 +29,7 @@ if [ ! -f ${DONE} ]; then
   for repo in remi.repo epel.repo rpmforge.repo
   do
     cp -p /etc/yum.repos.d/$repo /etc/yum.repos.d/$repo.old
-    cat /etc/yum.repos.d/$repo.old| sed 's/^enabled.*$/enabled = 1/' < /etc/yum.repos.d/$repo
+    cat /etc/yum.repos.d/$repo.old| sed 's/^enabled.*$/enabled = 0/' < /etc/yum.repos.d/$repo
   done
   touch ${DONE}
 fi

@@ -7,6 +7,16 @@
  */
 class AddressRepository extends DbRepository
 {
+    const ERR_MSG_NOT_INPUT_NAME         = '名前を入力してください';
+    const ERR_MSG_NOT_NAME_MAX_LENGTH    = '名前は20 文字以内で入力してください';
+    const ERR_MSG_NOT_INPUT_ADDRESS      = '住所を入力してください';
+    const ERR_MSG_NOT_ADDRESS_MAX_LENGTH = '住所は250 文字以内で入力してください';
+    const ERR_MSG_NOT_ID_MAX_LENGTH      = '対象は8 文字以内で入力してください';
+    const ERR_MSG_NOT_SETTING_TARGET     = '対象を指定してください';
+    const LENGTH_ID_MAX                  = 8;
+    const LENGTH_NAME_MAX                = 20;
+    const LENGTH_ADDRESS_MAX             = 250;
+
     public function insert($user_id, $post)
     {
         $now = new DateTime();
@@ -109,4 +119,68 @@ class AddressRepository extends DbRepository
           ':user_name' => $user_name,
         ));
     }
+
+
+    /**
+     * @param $params
+     *
+     * @return array
+     */
+    public function validPost($params)
+    {
+        $errors = array();
+
+        if ($this->valid->isEmpty($params["name"])) {
+            $errors[] = self::ERR_MSG_NOT_INPUT_NAME;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["name"], self::LENGTH_NAME_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_NAME_MAX_LENGTH;
+        }
+
+
+        if ($this->valid->isEmpty($params["address"])) {
+            $errors[] = self::ERR_MSG_NOT_INPUT_ADDRESS;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["address"], self::LENGTH_ADDRESS_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_ADDRESS_MAX_LENGTH;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return array
+     */
+    public function validDelete($params)
+    {
+        $errors = array();
+
+        if ($this->valid->isEmpty($params["id"])) {
+            $errors[] = self::ERR_MSG_NOT_SETTING_TARGET;
+        }
+
+        if ($this->valid->isCharaLengthMax($params["id"], self::LENGTH_ID_MAX)) {
+            $errors[] = self::ERR_MSG_NOT_ID_MAX_LENGTH;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param $params
+     * @param $user
+     */
+    public function saveAddress($params, $user)
+    {
+        if (empty($params["id"]) or !$params["id"]) {
+            $this->insert($user['id'], $params);
+        } else {
+            $this->update($user['id'], $params);
+        }
+    }
+
 }

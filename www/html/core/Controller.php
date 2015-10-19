@@ -33,6 +33,7 @@ abstract class Controller
         $this->session = $application->getSession();
         $this->db_manager = $application->getDbManager();
 
+
         $this->log = $application->getLog();
         $this->finger = uniqid();
     }

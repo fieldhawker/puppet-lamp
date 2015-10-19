@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../core/Controller.php';
+
 /**
  * AddressController.
  *
@@ -9,31 +11,9 @@ class AddressController extends Controller
 {
 //    protected $auth_actions = array('index', 'post');
 
-    private $valid;
-
     const LOG_FORMAT                     = "%s %s\n %s %s %s (%d)\n=====\n\n";
-    const ERR_MSG_NOT_INPUT_NAME         = '名前を入力してください';
-    const ERR_MSG_NOT_NAME_MAX_LENGTH    = '名前は20 文字以内で入力してください';
-    const ERR_MSG_NOT_INPUT_ADDRESS      = '住所を入力してください';
-    const ERR_MSG_NOT_ADDRESS_MAX_LENGTH = '住所は250 文字以内で入力してください';
     const ERR_MSG_NOT_REGISTER_FAILED    = "登録に失敗しました: ";
     const ERR_MSG_NOT_DELETE_FAILED      = "削除に失敗しました: ";
-    const ERR_MSG_NOT_SETTING_TARGET     = '対象を指定してください';
-    const ERR_MSG_NOT_ID_MAX_LENGTH      = '対象は8 文字以内で入力してください';
-    const LENGTH_ID_MAX                  = 8;
-    const LENGTH_NAME_MAX                = 20;
-    const LENGTH_ADDRESS_MAX             = 250;
-
-    /**
-     * コンストラクタ
-     *
-     * @param Application $application
-     */
-    public function __construct($application)
-    {
-        parent::__construct($application);
-        $this->valid = new Validate();
-    }
 
     /**
      * 住所一覧
@@ -144,12 +124,12 @@ class AddressController extends Controller
             $log, 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
         );
 
-        $errors = $this->validPost($params);
+        $errors = $this->db_manager->get('Address')->validPost($params);
 
         if (count($errors) === 0) {
             try {
 
-                $this->saveAddress($params, $user);
+                $this->db_manager->get('Address')->saveAddress($params, $user);
 
             } catch (Exception $e) {
 
@@ -188,7 +168,7 @@ class AddressController extends Controller
             return $this->redirect('/account/signin');
         }
 
-        $errors = $this->validDelete($params);
+        $errors = $this->db_manager->get('Address')->validDelete($params);
 
         if (count($errors) !== 0) {
             // 一覧に戻る
@@ -229,68 +209,6 @@ class AddressController extends Controller
         $this->log->addDebug($this->finger . ' ' . __METHOD__ . ' completed ----');
 
         return $this->redirect('/');
-    }
-
-    /**
-     * @param $params
-     *
-     * @return array
-     */
-    private function validPost($params)
-    {
-        $errors = array();
-
-        if ($this->valid->isEmpty($params["name"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_NAME;
-        }
-
-        if ($this->valid->isCharaLengthMax($params["name"], self::LENGTH_NAME_MAX)) {
-            $errors[] = self::ERR_MSG_NOT_NAME_MAX_LENGTH;
-        }
-
-
-        if ($this->valid->isEmpty($params["address"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_ADDRESS;
-        }
-
-        if ($this->valid->isCharaLengthMax($params["address"], self::LENGTH_ADDRESS_MAX)) {
-            $errors[] = self::ERR_MSG_NOT_ADDRESS_MAX_LENGTH;
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @param $params
-     *
-     * @return array
-     */
-    private function validDelete($params)
-    {
-        $errors = array();
-
-        if ($this->valid->isEmpty($params["id"])) {
-            $errors[] = self::ERR_MSG_NOT_SETTING_TARGET;
-        }
-
-        if ($this->valid->isCharaLengthMax($params["id"], self::LENGTH_ID_MAX)) {
-            $errors[] = self::ERR_MSG_NOT_ID_MAX_LENGTH;
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @param $params
-     * @param $user
-     */
-    private function saveAddress($params, $user)
-    {
-        if (empty($params["id"]) or !$params["id"]) {
-            $this->db_manager->get('Address')->insert($user['id'], $params);
-        } else {
-            $this->db_manager->get('Address')->update($user['id'], $params);
-        }
     }
 
 }

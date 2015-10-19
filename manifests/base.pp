@@ -9,7 +9,7 @@ content =>
 # exec { "mkdir":
 # command => "mkdir -p /var/www/html/web/",
 # path    => "/bin:/sbin:/usr/bin:/usr/sbin",
-# before => Service["httpd"],
+# before  => Service["httpd"],
 # }
 
 # ホスト名設定
@@ -73,16 +73,25 @@ exec { "locale":
 
 
 # パッケージインストール
-package { "httpd":        provider => "yum", ensure => "installed"}
-package { "mysql-server": provider => "yum", ensure => "installed"}
-package { "mysql":        provider => "yum", ensure => "installed"}
+package { "httpd":                   ensure => "latest"}
+#package { "mysql-server":           ensure => "latest"}
+package { "mysql-community-server":  ensure => "latest"}
+package { "mysql":                   ensure => "latest"}
+#package { "php":                    ensure => "latest"}
+#package { "php-mbstring":           ensure => "latest"}
+#package { "php-mysql":              ensure => "latest"}
 
-exec { "php56":
-command => "/usr/bin/yum -y install php php-mysqlnd php-gd php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-soap php-tidy --enablerepo=remi,remi-php56"
-}
-#package { "php":        provider => "yum", ensure => "installed"}
+#package { "httpd":        provider => "yum", ensure => "installed"}
+#package { "mysql-server": provider => "yum", ensure => "installed"}
+#package { "mysql":        provider => "yum", ensure => "installed"}
+#package { "php":          provider => "yum", ensure => "installed"}
 #package { "php-mbstring": provider => "yum", ensure => "installed"}
 #package { "php-mysql":    provider => "yum", ensure => "installed"}
+
+exec { "php56":
+  command => "/usr/bin/yum -y install php php-mysqlnd php-gd php-odbc php-pear php-xml php-xmlrpc php-mbstring php-mcrypt php-soap php-tidy --enablerepo=remi,remi-php56"
+}
+
 
 
 # httpd.conf設定
@@ -105,11 +114,17 @@ service { "mysqld":
   name       => "mysqld",
   enable     => true,
   ensure     => running,
-  require    => Package["mysql-server"],
+  require    => Package["mysql-community-server"],
   hasrestart => true
 }
 
-# 設定ファイル置換
+# 設定ファイル置換(httpd.conf)
+exec { "copy_httpd.conf":
+  command => "bash -c 'if ! test -f /etc/httpd/conf/httpd.conf.org; then cp -p /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.org; fi'",
+  before  => File["/etc/httpd/conf/httpd.conf"],
+  require => Package["httpd"],
+  path    => ["/bin", "/usr/bin"],
+}
 file { "/etc/httpd/conf/httpd.conf":
   owner  => "root",
   group  => "root",
@@ -117,6 +132,14 @@ file { "/etc/httpd/conf/httpd.conf":
   ensure => file,
   before => Service["httpd"],
   source => "puppet:///modules/puppet/httpd.conf",
+}
+
+# 設定ファイル置換(php.ini)
+exec { "copy_php.ini":
+  command => "bash -c 'if ! test -f /etc/php.ini.org; then cp -p /etc/php.ini /etc/php.ini.org; fi'",
+  before  => File["/etc/php.ini"],
+  require => Package["httpd"],
+  path    => ["/bin", "/usr/bin"],
 }
 file { "/etc/php.ini":
   owner  => "root",
@@ -126,13 +149,22 @@ file { "/etc/php.ini":
   before => Service["httpd"],
   source => "puppet:///modules/puppet/php.ini",
 }
+
+# 設定ファイル置換(my.cnf)
+exec { "copy_my.cnf":
+  command => "bash -c 'if ! test -f /var/lib/mysql/my.cnf.org; then cp -p /var/lib/mysql/my.cnf /var/lib/mysql/my.cnf.org; fi'",
+  before  => File["/var/lib/mysql/my.cnf"],
+  require => Package["mysql-community-server"],
+  path    => ["/bin", "/usr/bin"],
+}
 file { "/var/lib/mysql/my.cnf":
   owner   => "mysql",
   group   => "mysql",
   source  => "puppet:///modules/puppet/my.cnf",
-  notify  => Service["mysqld"],
-  require => Package["mysql-server"],
+  before  => Service["mysqld"],
+  require => Package["mysql-community-server"],
 }
+
 file { "/etc/my.cnf":
   require => File["/var/lib/mysql/my.cnf"],
   ensure  => "/var/lib/mysql/my.cnf",
@@ -166,7 +198,7 @@ file { '/var/www/html/index.html':
   require => Package['httpd'],
 }
 # phpinfo.php作成
-file { '/var/www/html/info.php':
+file { '/var/www/html/web/info.php':
   ensure  => file,
   content => '<?php  phpinfo(); ?>',    # phpinfo code
   require => Package['httpd'],          # require 'apache2' package before creating

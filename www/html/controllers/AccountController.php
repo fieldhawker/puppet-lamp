@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../core/Controller.php';
+
 /**
  * AccountController.
  *
@@ -9,32 +11,9 @@ class AccountController extends Controller
 {
 //  protected $auth_actions = array('index', 'signout', 'follow');
 
-    private $valid;
-
     const LOG_FORMAT                     = "%s %s\n %s %s %s (%d)\n=====\n\n";
-    const ERR_MSG_NOT_INPUT_MAIL_ADDRESS = 'メールアドレスを入力してください';
-    const ERR_MSG_NOT_MAIL_FORMAT        = 'メールアドレスはメール形式で入力してください';
-    const ERR_MSG_NOT_RANGE_MAIL_ADDRESS = 'メールアドレスは3 ～ 256 文字以内で入力してください';
-    const ERR_MSG_USED_MAIL_ADDRESS      = 'メールアドレスは既に使用されています';
-    const ERR_MSG_NOT_INPUT_PASSWORD     = 'パスワードを入力してください';
-    const ERR_MSG_NOT_RANGE_PASSWORD     = 'パスワードは4 ～ 30 文字以内で入力してください';
     const ERR_MSG_UNMATCH_MAIL_PASSWORD  = 'メールアドレスかパスワードが不正です';
     const ERR_MSG_REGISTER_FAILED        = "登録に失敗しました: ";
-    const LENGTH_MAIL_ADDRESS_MIN        = 3;
-    const LENGTH_MAIL_ADDRESS_MAX        = 256;
-    const LENGTH_PASSWORD_MIN            = 4;
-    const LENGTH_PASSWORD_MAX            = 30;
-
-    /**
-     * コンストラクタ
-     *
-     * @param Application $application
-     */
-    public function __construct($application)
-    {
-        parent::__construct($application);
-        $this->valid = new Validate();
-    }
 
     /**
      * アカウント登録
@@ -43,6 +22,7 @@ class AccountController extends Controller
      */
     public function signupAction()
     {
+
         if ($this->session->isAuthenticated()) {
             // 認証済みの場合はアカウント情報表示
             return $this->redirect('/account');
@@ -97,7 +77,7 @@ class AccountController extends Controller
             $params["email"], 1), date(DATE_RFC822), __FILE__, __METHOD__, __LINE__)
         );
 
-        $errors = $this->validRegister($params);
+        $errors = $this->db_manager->get('User')->validInsert($params);
 
         if (count($errors) === 0) {
             try {
@@ -203,7 +183,7 @@ class AccountController extends Controller
         $params["email"]    = $this->request->getPost('email');
         $params["password"] = $this->request->getPost('password');
 
-        $errors = $this->validAuth($params);
+        $errors = $this->db_manager->get('User')->validAuth($params);
 
         if (count($errors) === 0) {
             $user_repository = $this->db_manager->get('User');
@@ -250,76 +230,6 @@ class AccountController extends Controller
         $this->session->setAuthenticated(false);
 
         return $this->redirect('/account/signin');
-    }
-
-    /**
-     * @param $params
-     *
-     * @return array
-     */
-    private function validRegister($params)
-    {
-        $errors = array();
-
-        if ($this->valid->isEmpty($params["email"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_MAIL_ADDRESS;
-        }
-
-        if (!$this->valid->isMailAddress($params["email"])) {
-            $errors[] = self::ERR_MSG_NOT_MAIL_FORMAT;
-        }
-
-        if ($this->valid->isCharaLengthRange(
-          $params["email"],
-          self::LENGTH_MAIL_ADDRESS_MIN,
-          self::LENGTH_MAIL_ADDRESS_MAX)
-        ) {
-            $errors[] = self::ERR_MSG_NOT_RANGE_MAIL_ADDRESS;
-        }
-
-        if (count($errors) === 0 && !$this->db_manager->get('User')->isUniqueEmail($params["email"])) {
-            $errors[] = self::ERR_MSG_USED_MAIL_ADDRESS;
-        }
-
-
-        if ($this->valid->isEmpty($params["password"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_PASSWORD;
-        }
-
-        if ($this->valid->isCharaLengthRange(
-          $params["password"],
-          self::LENGTH_PASSWORD_MIN,
-          self::LENGTH_PASSWORD_MAX)
-        ) {
-            $errors[] = self::ERR_MSG_NOT_RANGE_PASSWORD;
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @param $params
-     *
-     * @return array
-     */
-    private function validAuth($params)
-    {
-        $errors = array();
-
-        if ($this->valid->isEmpty($params["email"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_MAIL_ADDRESS;
-        }
-
-        if (!$this->valid->isMailAddress($params["email"])) {
-            $errors[] = self::ERR_MSG_NOT_MAIL_FORMAT;
-        }
-
-
-        if ($this->valid->isEmpty($params["password"])) {
-            $errors[] = self::ERR_MSG_NOT_INPUT_PASSWORD;
-        }
-
-        return $errors;
     }
 
 }

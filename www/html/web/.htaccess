@@ -1,5 +1,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(info)$ info.php [QSA,L]
+    RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index_dev.php [QSA,L]
 </IfModule>
