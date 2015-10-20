@@ -3,6 +3,7 @@
     "monolog/monolog": ">=1.0.0",
     "phpunit/phpunit": "5.0.*",
     "phpunit/phpunit-skeleton-generator": "*",
+    "phpunit/dbunit": "2.0.*",
     "phpdocumentor/phpdocumentor": "2.*",
     "phpmd/phpmd": "@stable"
   },
