@@ -10,11 +10,11 @@ class UserRepository extends DbRepository
 
     const ERR_MSG_NOT_INPUT_MAIL_ADDRESS = 'メールアドレスを入力してください';
     const ERR_MSG_NOT_MAIL_FORMAT        = 'メールアドレスはメール形式で入力してください';
-    const ERR_MSG_NOT_RANGE_MAIL_ADDRESS = 'メールアドレスは3 ～ 256 文字以内で入力してください';
+    const ERR_MSG_NOT_RANGE_MAIL_ADDRESS = 'メールアドレスは6 ～ 256 文字以内で入力してください';
     const ERR_MSG_USED_MAIL_ADDRESS      = 'メールアドレスは既に使用されています';
     const ERR_MSG_NOT_INPUT_PASSWORD     = 'パスワードを入力してください';
     const ERR_MSG_NOT_RANGE_PASSWORD     = 'パスワードは4 ～ 30 文字以内で入力してください';
-    const LENGTH_MAIL_ADDRESS_MIN        = 3;
+    const LENGTH_MAIL_ADDRESS_MIN        = 6;
     const LENGTH_MAIL_ADDRESS_MAX        = 256;
     const LENGTH_PASSWORD_MIN            = 4;
     const LENGTH_PASSWORD_MAX            = 30;
@@ -77,7 +77,7 @@ class UserRepository extends DbRepository
             $errors[] = self::ERR_MSG_NOT_MAIL_FORMAT;
         }
 
-        if ($this->valid->isCharaLengthRange(
+        if (!$this->valid->isCharaLengthRange(
           $params["email"],
           self::LENGTH_MAIL_ADDRESS_MIN,
           self::LENGTH_MAIL_ADDRESS_MAX)
@@ -93,7 +93,7 @@ class UserRepository extends DbRepository
             $errors[] = self::ERR_MSG_NOT_INPUT_PASSWORD;
         }
 
-        if ($this->valid->isCharaLengthRange(
+        if (!$this->valid->isCharaLengthRange(
           $params["password"],
           self::LENGTH_PASSWORD_MIN,
           self::LENGTH_PASSWORD_MAX)

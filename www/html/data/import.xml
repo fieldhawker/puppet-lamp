@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <table name="user">
+        <column>id</column>
+        <column>email</column>
+        <column>password</column>
+        <column>created_at</column>
+        <row>
+            <value>1</value>
+            <value>takano@se-project.co.jp</value>
+            <value>pass</value>
+            <value>2015/10/10 00:00:00</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>a@a.c</value>
+            <value>pass</value>
+            <value>2015/10/20 00:00:00</value>
+        </row>
+    </table>
+
+    <table name="address">
+        <column>id</column>
+        <column>name</column>
+        <column>address</column>
+        <column>created_at</column>
+        <column>updated_at</column>
+        <column>created_by</column>
+        <column>updated_by</column>
+        <row>
+            <value>1</value>
+            <value>高野</value>
+            <value>住所</value>
+            <value>2015/10/10 00:00:00</value>
+            <value>2015/10/11 00:00:00</value>
+            <value>1</value>
+            <value>1</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>高野2</value>
+            <value>住所2</value>
+            <value>2015/10/20 00:00:00</value>
+            <value>2015/10/21 00:00:00</value>
+            <value>2</value>
+            <value>2</value>
+        </row>
+    </table>
+</dataset>

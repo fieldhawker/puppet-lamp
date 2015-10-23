@@ -6,7 +6,7 @@
     "phpunit/phpunit-skeleton-generator": "*",
     "phpunit/dbunit": "2.0.*",
     "phpmd/phpmd": "@stable",
-    "phpunit/phpunit-selenium": ">=1.2",
+    "phpunit/phpunit-selenium": "*",
     "maximebf/debugbar": "1.*"
   },
   "require-dev": {
