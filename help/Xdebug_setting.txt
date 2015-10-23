@@ -6,7 +6,7 @@
 
 # PHP Remote Debug設定を新規登録
 
-+　PHP Remote Debug
++ PHP Remote Debug
 Name : Vagrant
 Servers: 192.168.33.20
 Ide key: phpstorm

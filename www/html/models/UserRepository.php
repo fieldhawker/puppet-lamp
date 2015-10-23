@@ -18,11 +18,15 @@ class UserRepository extends DbRepository
     const LENGTH_MAIL_ADDRESS_MAX        = 256;
     const LENGTH_PASSWORD_MIN            = 4;
     const LENGTH_PASSWORD_MAX            = 30;
+    const SECRET_KEY                     = 'SecretKey';
 
+    /**
+     * @param $params
+     */
     public function insert($params)
     {
         $password = $this->hashPassword($params["password"]);
-        $now = new DateTime();
+        $now      = new DateTime();
 
         $sql = "
             INSERT INTO user(email, password, created_at)
@@ -36,11 +40,21 @@ class UserRepository extends DbRepository
         ));
     }
 
+    /**
+     * @param $password
+     *
+     * @return string
+     */
     public function hashPassword($password)
     {
-        return sha1($password . 'SecretKey');
+        return sha1($password . self::SECRET_KEY);
     }
 
+    /**
+     * @param $email
+     *
+     * @return array
+     */
     public function fetchByEmail($email)
     {
         $sql = "SELECT * FROM user WHERE email = :email";
@@ -48,6 +62,11 @@ class UserRepository extends DbRepository
         return $this->fetch($sql, array(':email' => $email));
     }
 
+    /**
+     * @param $email
+     *
+     * @return bool
+     */
     public function isUniqueEmail($email)
     {
         $sql = "SELECT COUNT(id) as count FROM user WHERE email = :email";

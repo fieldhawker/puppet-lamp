@@ -17,6 +17,10 @@ class AddressRepository extends DbRepository
     const LENGTH_NAME_MAX                = 20;
     const LENGTH_ADDRESS_MAX             = 250;
 
+    /**
+     * @param $user_id
+     * @param $post
+     */
     public function insert($user_id, $post)
     {
         $now = new DateTime();
@@ -36,6 +40,10 @@ class AddressRepository extends DbRepository
         ));
     }
 
+    /**
+     * @param $user_id
+     * @param $post
+     */
     public function update($user_id, $post)
     {
         $now = new DateTime();
@@ -55,6 +63,9 @@ class AddressRepository extends DbRepository
         ));
     }
 
+    /**
+     * @param $id
+     */
     public function delete($id)
     {
         $sql = "
@@ -67,6 +78,9 @@ class AddressRepository extends DbRepository
         ));
     }
 
+    /**
+     * @return array
+     */
     public function fetchAllAddress()
     {
         $sql = "
@@ -78,6 +92,11 @@ class AddressRepository extends DbRepository
         return $this->fetchAll($sql);
     }
 
+    /**
+     * @param $id
+     *
+     * @return array
+     */
     public function fetchById($id)
     {
         $sql = "
@@ -91,6 +110,11 @@ class AddressRepository extends DbRepository
         ));
     }
 
+    /**
+     * @param $user_id
+     *
+     * @return array
+     */
     public function fetchAllByUserId($user_id)
     {
         $sql = "
@@ -104,6 +128,12 @@ class AddressRepository extends DbRepository
         return $this->fetchAll($sql, array(':user_id' => $user_id));
     }
 
+    /**
+     * @param $id
+     * @param $user_name
+     *
+     * @return array
+     */
     public function fetchByIdAndUserName($id, $user_name)
     {
         $sql = "
@@ -152,6 +182,8 @@ class AddressRepository extends DbRepository
 
     /**
      * @param $params
+     * 
+     * @assert (array('id' => '1')) == self::ERR_MSG_NOT_SETTING_TARGET
      *
      * @return array
      */

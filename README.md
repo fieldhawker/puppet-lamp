@@ -20,6 +20,8 @@ vagrant からpuppetを使用してのLAMP環境を構築
   
 > cd www/html    
 > vendor/phpunit/phpunit-skeleton-generator/phpunit-skelgen generate-test -- Validate core/Validate.php  
+> vendor/phpunit/phpunit-skeleton-generator/phpunit-skelgen generate-test -- AddressRepository models/AddressRepository.php
+  
   
 * テスト実施  
 

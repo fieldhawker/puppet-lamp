@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../core/Controller.php';
+require_once __DIR__ . '/../core/Controller.php';
 
 /**
  * AddressController.
@@ -11,9 +11,9 @@ class AddressController extends Controller
 {
 //    protected $auth_actions = array('index', 'post');
 
-    const LOG_FORMAT                     = "%s %s\n %s %s %s (%d)\n=====\n\n";
-    const ERR_MSG_NOT_REGISTER_FAILED    = "登録に失敗しました: ";
-    const ERR_MSG_NOT_DELETE_FAILED      = "削除に失敗しました: ";
+    const LOG_FORMAT                  = "%s %s\n %s %s %s (%d)\n=====\n\n";
+    const ERR_MSG_NOT_REGISTER_FAILED = "登録に失敗しました: ";
+    const ERR_MSG_NOT_DELETE_FAILED   = "削除に失敗しました: ";
 
     /**
      * 住所一覧
