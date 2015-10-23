@@ -1,0 +1,40 @@
+# PhpStorm上でのXdebug設定
+
+# デバッグ設定
+
+[Run] – [Edit Configurations…]
+
+# PHP Remote Debug設定を新規登録
+
++　PHP Remote Debug
+Name : Vagrant
+Servers: 192.168.33.20
+Ide key: phpstorm
+
+# 接続サーバ設定を追加
+
+[...]
+Name : 192.168.33.20
+Host : 192.168.33.20
+Port : 80
+Debugger : Xdebug
+Use path mappings : check
+File/Directory
+  (example)
+   //Users/fieldhawker/Documents/sep/20151010_puppet/puppet-lamp
+Absolute paht on server
+  (example)
+   /var
+
+# IDE のデバッグ設定を実施
+
+[PhpStorm] - [Preferences] - [Languages & Frameworks] - [PHP] - [Debug]
+  [Xdebug]
+    Debug port : 90001
+    Can accept external connections : check
+    Force ... : check
+    Force ... : check
+  [Xdebug] - [DBGp Proxy]
+    IDE key : phpstorm
+    Host    : 192.168.33.20
+    Port    : 9001

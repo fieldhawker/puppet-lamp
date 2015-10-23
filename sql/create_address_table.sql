@@ -1,4 +1,4 @@
-CREATE TABLE address (
+CREATE TABLE IF NOT EXISTS address (
   id         INTEGER AUTO_INCREMENT,
   name       VARCHAR(20),
   address    VARCHAR(255),
@@ -9,4 +9,5 @@ CREATE TABLE address (
   PRIMARY KEY (id),
   INDEX address_name_index(name)
 )
-  ENGINE = INNODB;
+  ENGINE = INNODB
+  DEFAULT CHARSET = utf8mb4;

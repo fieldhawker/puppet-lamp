@@ -151,24 +151,25 @@ file { "/etc/php.ini":
 }
 
 # 設定ファイル置換(my.cnf)
-exec { "copy_my.cnf":
-  command => "bash -c 'if ! test -f /var/lib/mysql/my.cnf.org; then cp -p /var/lib/mysql/my.cnf /var/lib/mysql/my.cnf.org; fi'",
-  before  => File["/var/lib/mysql/my.cnf"],
-  require => Package["mysql-community-server"],
-  path    => ["/bin", "/usr/bin"],
-}
-file { "/var/lib/mysql/my.cnf":
+#exec { "copy_my.cnf":
+#  command => "bash -c 'if ! test -f /var/lib/mysql/my.cnf.org; then cp -p /var/lib/mysql/my.cnf /var/lib/mysql/my.cnf.org; fi'",
+#  before  => File["/var/lib/mysql/my.cnf"],
+#  require => Package["mysql"],
+#  path    => ["/bin", "/usr/bin"],
+#}
+#file { "/var/lib/mysql/my.cnf":
+file { "/etc/my.cnf":
   owner   => "mysql",
   group   => "mysql",
   source  => "puppet:///modules/puppet/my.cnf",
   before  => Service["mysqld"],
-  require => Package["mysql-community-server"],
+  require => Package["mysql"],
 }
 
-file { "/etc/my.cnf":
-  require => File["/var/lib/mysql/my.cnf"],
-  ensure  => "/var/lib/mysql/my.cnf",
-}
+#file { "/etc/my.cnf":
+#  require => File["/var/lib/mysql/my.cnf"],
+#  ensure  => "/var/lib/mysql/my.cnf",
+#}
 
 # MySQL接続設定
 exec { "set-mysql-password":
@@ -184,10 +185,30 @@ define mysqldb( $user, $password ) {
     require => Service["mysqld"],
   }
 }
+
+#DB作成
 mysqldb { "myapp":
   user     => "myappuser",
   password => "myapppass",
 }
+mysqldb { "myapp_test":
+  user     => "myappuser",
+  password => "myapppass",
+}
+
+#テーブル作成
+#define make_table( $user, $password, $db, $table ) {
+#  exec { "create-${table}-${db}":
+#    unless  => "/usr/bin/mysql -u${user} -p${password} -D ${db} ${table}",
+#    command => "/usr/bin/mysql -u${user} -p${password} -D ${db} < /vagrant/sql/create_${table}_table.sql",
+#    require => exec["create-${db}-db"],
+#  }
+#}
+
+#make_table { "myapp_um_table": user => "myappuser", password => "myapppass", db => "myapp", table => "user" }
+#make_table { "myapp_am_table": user => "myappuser", password => "myapppass", db => "myapp", table => "address" }
+#make_table { "myapp_ut_table": user => "myappuser", password => "myapppass", db => "myapp_test", table => "user" }
+#make_table { "myapp_at_table": user => "myappuser", password => "myapppass", db => "myapp_test", table => "address" }
 
 # テストページ作成
 file { '/var/www/html/index.html':

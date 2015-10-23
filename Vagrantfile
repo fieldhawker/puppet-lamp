@@ -41,6 +41,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     puppet.manifest_file  = "base.pp"
   end
 
+
+  config.vm.provision "shell", path: "script/after.sh"
+
   # config.vm.provision "shell", path: "script/repo.sh"
   # config.vm.provision "shell", path: "script/yum.sh"
 
