@@ -1,14 +1,15 @@
 {
   "require": {
+    "monolog/monolog": ">=1.0.0"
+  },
+  "require-dev": {
+    "monolog/monolog": "phpunit/phpunit-selenium: *",
     "monolog/monolog": "phpdocumentor/phpdocumentor: 2.*",
     "monolog/monolog": ">=1.0.0",
     "phpunit/phpunit": "5.0.*",
     "phpunit/phpunit-skeleton-generator": "*",
     "phpunit/dbunit": "2.0.*",
     "phpmd/phpmd": "@stable",
-    "phpunit/phpunit-selenium": "*",
     "maximebf/debugbar": "1.*"
-  },
-  "require-dev": {
   }
 }

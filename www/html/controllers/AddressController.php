@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../core/Controller.php';
+//require_once __DIR__ . '/../core/Controller.php';
 
 /**
  * AddressController.
@@ -29,7 +29,7 @@ class AddressController extends Controller
         }
 
         $addresses = $this->db_manager->get('Address')->fetchAllAddress();
-
+        
         return $this->render(array(
           'addresses' => $addresses,
         ));

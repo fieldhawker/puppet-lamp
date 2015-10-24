@@ -35,7 +35,10 @@ class AddressApplication extends Application
           => array('controller' => 'account', 'action' => 'index'),
           '/account/:action'
           => array('controller' => 'account'),
-
+          '/map'
+          => array('controller' => 'map', 'action' => 'index'),
+    
+          
         );
     }
 
