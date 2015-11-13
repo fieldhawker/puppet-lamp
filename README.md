@@ -13,6 +13,9 @@ vagrant からpuppetを使用してのLAMP環境を構築
 > composer install  
 > ~~mysql -u xxx -pyyy -D myapp < sql/create_user_table.sql~~  
 > ~~mysql -u xxx -pyyy -D myapp < sql/create_address_table.sql~~  
+
+
+> vagrant provision  (provisionし忘れた場合)  
   
 **テストの出力と実行コマンド例**  
  
